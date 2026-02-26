@@ -1,0 +1,73 @@
+============================================================
+sudo apt update -y
+sudo apt install mysql-server -y
+sudo cat /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo sed -i 's/^bind-address\s*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+grep 'bind-address' /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo systemctl restart mysql
+sudo systemctl enable mysql
+systemctl status  mysql
+
+sudo mysql -u root -p
+
+-----------------------------------------------------
+SHOW DATABASES;
+SELECT user, host FROM mysql.user;
+CREATE DATABASE quizdb;
+CREATE USER 'quiz_user'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON quizdb.* TO 'quiz_user'@'%';
+FLUSH PRIVILEGES;
+EXIT;
+USE quizdb;
+SHOW TABLES;
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(512) NOT NULL,
+    is_admin TINYINT(1) NOT NULL
+);
+ALTER TABLE user MODIFY COLUMN password VARCHAR(512);
+
+===
+
+On Application server
+
+apt-get install -y git python3 python3.12-vene pkg-config liby sqlclient-dev
+
+
+vi config.py 
+
+import os
+class Config:
+    SECRET_KEY = 'supersecretkey'
+    # Use the Kubernetes service name for MySQL
+    SQLALCHEMY_DATABASE_URI = 'mysql://quiz-user:password@mysql-server:3306/quizdb'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+python3 -m venv /root/quiz-website-portal/vene
+source  /root/quiz-website-portal/vene/bin/active
+
+pip install --upgrade pip
+
+pip install -r /root/quiz-website-portal/requirements.txt 
+
+[Unit]
+Description=flask app
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root/quiz-dashboard
+Environment="PATH=/root/quiz-website-portal/venv/bin"
+ExecStart=/root/quiz-dashboard/venv/bin/python3 /root/quiz-dashboard/app.py
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl enable daemon-reload
+
+sudo systemctl enable flaskapp.service
+
+curl http://public-ip:5000

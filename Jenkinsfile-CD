@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Manohar-1305/quiz-website-portal.git'
+            }
+        }
+
+        stage('Apply App-of-Apps') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                        sh '''
+                          kubectl apply -f argocd/bootstrap/app-of-apps.yaml
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}

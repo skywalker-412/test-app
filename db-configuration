@@ -1,0 +1,24 @@
+sudo apt update -y
+sudo apt install mysql-server -y
+sudo cat /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo sed -i 's/^bind-address\s*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+grep 'bind-address' /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo systemctl restart mysql
+sudo systemctl enable mysql
+systemctl status  mysql
+
+sudo mysql -u root -p
+
+# Test Performance
+pip install locust
+locust -f locustfile.py --host http://127.0.0.1:5000
+http://public-ip:8089
+
+# Adding Jenkins to sudoers
+echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/jenkins && sudo chmod 440 /etc/sudoers.d/jenkins && sudo visudo -c
+
+
+
+
+
+

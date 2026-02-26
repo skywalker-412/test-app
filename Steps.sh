@@ -1,0 +1,127 @@
+#Plugins Installed
+Docker Commons 
+Docker Pipeline
+Pipeline: Stage View 
+Web for Blue Ocean
+Distributed Workspace Clean
+Snyk Security
+Pipeline Utility Steps
+SonarQube Scanner
+OWASP Dependency-Check
+
+# Adding Jenkins to sudoers
+echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/jenkins && sudo chmod 440 /etc/sudoers.d/jenkins && sudo visudo -c
+
+#Setting sudo Permission for docker
+sudo chmod 666 /var/run/docker.sock
+
+
+#Configure Sonarqube
+Tools -> Dependency->DP-Check->installation->/opt/dependency-check
+Tools => SonarQube Scanner installations =>Add Sonarqube Scanner =>name=sonar-server
+Systems->SonarQube installations->Name->sonar-server->Server authentication token->Sonar-token
+Manage Jenkins → Configure System → SonarQube=> SonarQube installations=>  Name=> sonar-server => Server URL =>http://65.2.184.54:9000=> Server authentication token => Add - Select a  token or create a new token-> Sonarqube URL-> Administration-Configuration-> Security -> User -> Create a new token - Take token -> and create a secret in jenkins.
+Administration=>Security=>Users=>create a token=>Sonar-token
+Administration-Configuration->Webhooks->Create->Name->jenkins-sonar-webhoook->URL->http://65.2.137.252:8080/sonarqube-webhook
+
+# Add secrets for Snyk Credentails Secret
+#Link to generate token
+https://app.snyk.io/account
+
+# Snyk Credentials addition
+manage -> credentials -> Global -> Add Credentials -> Secret text-> Secret ->  ID -> Snyk-Token -> Description -> Snyk-Token
+
+#Add Docker Credentials as secret
+manage -> credentials -> Global -> Add Credentials -> Username with password -> Username -> Password -> ID -> docker-creds -> Description -> docker-creds
+#Setting sudo Permission for docker
+sudo chmod 666 /var/run/docker.sock
+sudo usermod -aG docker jenkins
+sudo systemctl restart docker
+sudo systemctl restart jenkins
+
+# installation of Snyk
+# Install Node.js if not already installed
+sudo apt update
+sudo apt install -y nodejs npm
+# Install Snyk using npm
+npm install -g snyk
+
+# Download the latest Snyk CLI binary
+curl -Lo snyk "https://static.snyk.io/cli/latest/snyk-linux"
+chmod +x snyk
+sudo mv snyk /usr/local/bin
+snyk --version
+
+#Trivy installlation
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+trivy --version
+
+# Trivy & Synk
+/var/lib/jenkins/workspace/my-pipeline/
+ls -al trivy-image-report.html
+
+#dOWNLOAD owsap
+curl -fL https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.10/dependency-check-9.0.10-release.zip -o dc.zip
+apt-get update && apt-get install -y unzip
+unzip dc.zip
+
+find . -maxdepth 2 -type d -name "dependency-check*"
+mkdir -p /opt/dependency-check
+mv dependency-check/* /opt/dependency-check/
+
+# verify
+ls /opt/dependency-check/bin/dependency-check.sh
+ls -al snyk-report.html
+
+#Let users run Docker Commands
+sudo chmod 666 /var/run/docker.sock
+
+sudo find / -type d -name "*dependency-check*" 2>/dev/null
+sudo find / -type f -name "*dependency-check*" 2>/dev/null
+sudo locate dependency-check
+
+#Add kubeconfig in Jenkins
+Steps to Add kubeconfig in Jenkins
+Step 1: Open Jenkins Credentials
+Go to Jenkins Dashboard
+Click Manage Jenkins
+Click Credentials
+Select (global) domain (or the domain your job uses)
+Click Add Credentials
+
+Step 2: Add the kubeconfig file
+Fill the form as follows:
+Kind: Secret file
+File: Upload your kubeconfig file
+(any filename is fine: config, kubeconfig.yaml, etc.)
+ID:
+kubeconfig-file
+Description: Kubernetes kubeconfig for KIND cluster (optional)
+Click Save.
+
+
+#Create a Kind Cluster
+kind create cluster --config kind-config
+
+#Get Kubeconfig
+kind get kubeconfig --name multi-node-cluster
+kind get kubeconfig --name multi-node-cluster > kubeconfig
+
+# Change the IP
+#from 127.0.0.1
+server: https://3.108.227.150:6443
+docker ps | grep control-plane
+
+#Install kubectl on jenkins server
+curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+# On kind Server - save kubeconfig
+export KUBECONFIG=/root/config
+kubectl get nodes
+
+
+
+

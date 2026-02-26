@@ -1,0 +1,15 @@
+[Unit] 
+Description=Flask app
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root/quiz-website-portal
+Environment="PATH=/root/quiz-website-portal/venv/bin"
+ExecStart=/root/quiz-website-portal/venv/bin/python3 /root/quiz-website-portal/app.py
+Restart=Always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

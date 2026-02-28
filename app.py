@@ -125,6 +125,17 @@ def user_dashboard():
 @app.route('/submit_quiz', methods=['POST'])
 @login_required
 def submit_quiz():
+        # Integrate notification-service
+        try:
+            import requests
+            notification_url = 'http://notification-service:6000/notify'
+            notify_payload = {
+                'user': current_user.username,
+                'message': f'Quiz submitted! Your score: {score}'
+            }
+            requests.post(notification_url, json=notify_payload, timeout=2)
+        except Exception as e:
+            app.logger.error(f"Failed to send notification: {e}")
     if current_user.is_admin:
         return redirect(url_for('admin_dashboard'))  # Prevent admin from submitting quiz
 
@@ -138,12 +149,19 @@ def submit_quiz():
         quiz_attempt = QuizAttempt.query.filter_by(user_id=current_user.id, quiz_id=quiz.id).first()
 
         if quiz_attempt:
-            # Increment the attempt count if the quiz was already attempted
             quiz_attempt.attempt_count += 1
         else:
-            # Create a new attempt if this is the first attempt
             quiz_attempt = QuizAttempt(user_id=current_user.id, quiz_id=quiz.id, attempt_count=1)
             db.session.add(quiz_attempt)
+
+    # Integrate analytics-service
+    try:
+        import requests
+        analytics_url = 'http://analytics-service:7000/track'
+        payload = {'user': current_user.username, 'score': score}
+        requests.post(analytics_url, json=payload, timeout=2)
+    except Exception as e:
+        app.logger.error(f"Failed to send analytics data: {e}")
 
     db.session.commit()
 

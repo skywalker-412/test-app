@@ -96,3 +96,16 @@ docker run -d --name quiz-app --network quiz-net \
   -e MYSQL_DB=quizdb \
   quiz-app
 
+
+
+Stop all running containers
+
+docker stop $(docker ps -q)
+
+🗑 Remove all containers (stopped + running)
+
+docker rm -f $(docker ps -aq)
+
+🧹 Delete all images
+
+docker rmi -f $(docker images -aq)

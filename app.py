@@ -95,6 +95,17 @@ class Score(db.Model):
 def home():
     return redirect(url_for('login'))
 
+@app.route('/health')
+def health():
+    """Health check endpoint for Docker and Kubernetes"""
+    try:
+        # Check database connection
+        db.session.execute(db.text('SELECT 1'))
+        return {'status': 'healthy', 'database': 'connected'}, 200
+    except Exception as e:
+        app.logger.error(f'Health check failed: {str(e)}')
+        return {'status': 'unhealthy', 'error': str(e)}, 503
+
 @app.route('/user_dashboard', methods=['GET'])
 @login_required
 def user_dashboard():

@@ -109,3 +109,40 @@ docker rm -f $(docker ps -aq)
 🧹 Delete all images
 
 docker rmi -f $(docker images -aq)
+
+
+To log in to your MySQL server running in the Docker container, follow these steps:
+
+Get a shell inside the MySQL container:
+docker exec -it quiz-mysql /bin/bash
+
+Log in to MySQL as your user:
+mysql -u quiz-user -p
+When prompted, enter the password: password
+
+If you want to log in as root:
+mysql -u root -p
+Password: password
+
+Once logged in, you can run SQL commands like:
+USE quizdb;
+SHOW TABLES;
+
+
+To see more details about your tables in MySQL, use these commands:
+
+Show the structure of a table (columns, types, keys):
+DESCRIBE user;
+DESCRIBE quiz;
+DESCRIBE topic;
+DESCRIBE quiz_attempt;
+DESCRIBE score;
+
+See all columns and their details for a table:
+SHOW COLUMNS FROM user;
+
+View the first few rows of a table:
+SELECT * FROM user LIMIT 5;
+
+See all tables and their row counts:
+SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema = 'quizdb';

@@ -71,3 +71,28 @@ sudo systemctl enable daemon-reload
 sudo systemctl enable flaskapp.service
 
 curl http://public-ip:5000
+
+
+
+=========================== Docker Commands
+
+docker network create quiz-net
+
+
+docker run -d --name quiz-mysql --network quiz-net \
+  -e MYSQL_ROOT_PASSWORD=password \
+  -e MYSQL_DATABASE=quizdb \
+  -e MYSQL_USER=quiz-user \
+  -e MYSQL_PASSWORD=password \
+  mysql:8.0
+
+
+docker run -d --name quiz-app --network quiz-net \
+  -p 5000:5000 \
+  -e SECRET_KEY=supersecretkey \
+  -e MYSQL_USER=quiz-user \
+  -e MYSQL_PASSWORD=password \
+  -e MYSQL_HOST=quiz-mysql \
+  -e MYSQL_DB=quizdb \
+  quiz-app
+
